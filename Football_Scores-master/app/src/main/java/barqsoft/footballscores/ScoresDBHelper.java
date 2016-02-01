@@ -8,11 +8,13 @@ import barqsoft.footballscores.DatabaseContract.scores_table;
 
 /**
  * Created by yehya khaled on 2/25/2015.
+ * Updated by Martin Melcher 01/02/2016:
+ * - Home and Away Team URLs added
  */
 public class ScoresDBHelper extends SQLiteOpenHelper
 {
     public static final String DATABASE_NAME = "Scores.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     public ScoresDBHelper(Context context)
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
@@ -26,7 +28,9 @@ public class ScoresDBHelper extends SQLiteOpenHelper
                 + scores_table.DATE_COL + " TEXT NOT NULL,"
                 + scores_table.TIME_COL + " INTEGER NOT NULL,"
                 + scores_table.HOME_COL + " TEXT NOT NULL,"
+                + scores_table.HOME_URL_COL + " TEXT,"
                 + scores_table.AWAY_COL + " TEXT NOT NULL,"
+                + scores_table.AWAY_URL_COL + " TEXT,"
                 + scores_table.LEAGUE_COL + " INTEGER NOT NULL,"
                 + scores_table.HOME_GOALS_COL + " TEXT NOT NULL,"
                 + scores_table.AWAY_GOALS_COL + " TEXT NOT NULL,"

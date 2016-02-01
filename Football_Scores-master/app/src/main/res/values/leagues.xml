@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="league394" translatable="false">Bundesliga 1. Division</string>
+    <string name="league395" translatable="false">Bundesliga 2. Division</string>
+    <string name="league398" translatable="false">Premier League</string>
+    <string name="league399" translatable="false">Primera Division</string>
+    <string name="league401" translatable="false">Seria A</string>
+    <string name="unknown_league" translatable="true">Unknown League</string>
+</resources>

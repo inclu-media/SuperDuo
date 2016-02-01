@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="season_link" translatable="false">http://api.football-data.org/v1/soccerseasons/</string>
+    <string name="match_link" translatable="false">http://api.football-data.org/v1/fixtures/</string>
+    <string name="team_link" translatable="false">http://api.football-data.org/v1/teams/</string>
+    <string name="timeframe_next_two" translatable="false">n2</string>
+    <string name="timeframe_past_two" translatable="false">p2</string>
+</resources>

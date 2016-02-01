@@ -99,7 +99,9 @@ public class BookService extends IntentService {
             final String FORECAST_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
             final String QUERY_PARAM = "q";
 
-            final String ISBN_PARAM = "isbn:" + ean;
+            /** BUG FIX: Google book api change */
+            final String ISBN_PARAM = "isbn+" + ean;
+            /** BUG FIX end */
 
             Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                     .appendQueryParameter(QUERY_PARAM, ISBN_PARAM)
@@ -157,6 +159,14 @@ public class BookService extends IntentService {
         final String IMG_URL = "thumbnail";
 
         try {
+
+            /** BUG FIX: bookJsonString == null in case of networking isues
+             * -> check Internet connection in main activity before starting the service*/
+            if (bookJsonString == null) {
+                return;
+            }
+            /** BUG Fix end */
+
             JSONObject bookJson = new JSONObject(bookJsonString);
             JSONArray bookArray;
             if(bookJson.has(ITEMS)){

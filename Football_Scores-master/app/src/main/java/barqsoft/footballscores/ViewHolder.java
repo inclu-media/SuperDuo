@@ -16,6 +16,7 @@ public class ViewHolder
     public ImageView home_crest;
     public ImageView away_crest;
     public double match_id;
+
     public ViewHolder(View view)
     {
         home_name = (TextView) view.findViewById(R.id.home_name);
