@@ -12,6 +12,7 @@ import org.joda.time.LocalDate;
 
 import barqsoft.footballscores.DatabaseContract;
 import barqsoft.footballscores.R;
+import barqsoft.footballscores.Utilies;
 import barqsoft.footballscores.scoresAdapter;
 
 /**
@@ -65,6 +66,12 @@ public class FootballAppWidgetService extends RemoteViewsService {
             RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.widget_item);
             if (mCursor.moveToPosition(position)) {
                 rv.setTextViewText(R.id.tvHomeName, mCursor.getString(scoresAdapter.COL_HOME));
+                rv.setTextViewText(R.id.tvAwayName, mCursor.getString(scoresAdapter.COL_AWAY));
+                rv.setTextViewText(R.id.tvScore, Utilies.getScores(
+                        mCursor.getInt(scoresAdapter.COL_HOME_GOALS),
+                        mCursor.getInt(scoresAdapter.COL_AWAY_GOALS)
+                ));
+                rv.setTextViewText(R.id.tvTime, mCursor.getString(scoresAdapter.COL_MATCHTIME));
             }
             return rv;
         }
