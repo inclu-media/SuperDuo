@@ -3,7 +3,7 @@
     <string name="season_link" translatable="false">http://api.football-data.org/v1/soccerseasons/</string>
     <string name="match_link" translatable="false">http://api.football-data.org/v1/fixtures/</string>
     <string name="team_link" translatable="false">http://api.football-data.org/v1/teams/</string>
-    <string name="timeframe_next_two" translatable="false">n2</string>
+    <string name="timeframe_next_two" translatable="false">n3</string>
     <string name="timeframe_past_two" translatable="false">p2</string>
     <string name="wikimedia_thumb_url" translatable="false">https://upload.wikimedia.org/wikipedia/</string>
 </resources>

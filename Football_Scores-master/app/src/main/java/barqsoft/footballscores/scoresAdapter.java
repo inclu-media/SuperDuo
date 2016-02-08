@@ -94,8 +94,8 @@ public class scoresAdapter extends CursorAdapter
                 return;
             }
         }
-        Picasso.with(mContext).load(crestUrl).resize(dimen, dimen)
-                .placeholder(R.drawable.crest_48).error(R.drawable.crest_48).centerCrop().into(view);
+        Picasso.with(mContext).load(crestUrl).resize(dimen, dimen).centerInside()
+                .placeholder(R.drawable.crest_48).error(R.drawable.crest_48).into(view);
     }
 
     public scoresAdapter(Context context,Cursor cursor,int flags)
@@ -166,6 +166,9 @@ public class scoresAdapter extends CursorAdapter
                             context.getString(R.string.share_text_chooser)));
                 }
             });
+
+            // add content description to share button
+            share_button.setContentDescription(mContext.getString(R.string.conDescShareButton));
         }
         else
         {

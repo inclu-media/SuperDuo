@@ -40,6 +40,7 @@ import retrofit2.http.Path;
  * - API endpoints and constants put into resource file (api.xml)
  * - API version switched to v1
  * - Home and Away Team URLs read from API and stored into DB
+ * - API parameter for the next 2 days changed from n2 to n3 as n2 would be only be today and tmrw.
  */
 public class myFetchService extends IntentService
 {
@@ -86,6 +87,7 @@ public class myFetchService extends IntentService
             }
         }
         catch (IOException iox) {
+            Log.d(LOG_TAG, "Error retrieving crest url: " + iox.getMessage());
             return "";
         }
     }

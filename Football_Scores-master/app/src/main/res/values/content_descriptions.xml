@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="conDescFixtureItem" translatable="true">Click for Details and Share Feature</string>
+    <string name="conDescShareButton" translatable="true">Click to Share</string>
+    <string name="conDescPagerStrip" translatable="true">Select Fixture Day</string>
+</resources>

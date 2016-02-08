@@ -2,6 +2,7 @@ package barqsoft.footballscores;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -12,11 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import barqsoft.footballscores.service.myFetchService;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Updated by Martin Melcher 02/08/2016:
+ * - Check for internet connection before starting the fetch service
  */
 public class MainScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
@@ -31,6 +34,14 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
 
     private void update_scores()
     {
+        // check for internet connection and don't start the fetch service if there is none
+        // ideally there should be a sync adapter for that
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(getActivity().CONNECTIVITY_SERVICE);
+        if (cm.getActiveNetworkInfo() == null) {
+            Toast.makeText(getActivity(),getString(R.string.noInternet), Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Intent service_start = new Intent(getActivity(), myFetchService.class);
         getActivity().startService(service_start);
     }
@@ -49,7 +60,10 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         final ListView score_list = (ListView) rootView.findViewById(R.id.scores_list);
         mAdapter = new scoresAdapter(getActivity(),null,0);
+
         score_list.setAdapter(mAdapter);
+        score_list.setEmptyView(rootView.findViewById(R.id.tvNoMatches));
+
         getLoaderManager().initLoader(SCORES_LOADER,null,this);
         mAdapter.detail_match_id = MainActivity.selected_match_id;
         score_list.setOnItemClickListener(new AdapterView.OnItemClickListener()
