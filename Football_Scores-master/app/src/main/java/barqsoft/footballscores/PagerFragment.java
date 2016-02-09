@@ -1,6 +1,8 @@
 package barqsoft.footballscores;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,12 +13,19 @@ import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import barqsoft.footballscores.service.myFetchService;
+
 /**
  * Created by yehya khaled on 2/27/2015.
+ * Updated by Martin Melcher on 09/02/2016:
+ * - moved update_scores here from MainScreenFragment and call it in onResume
+ * otherwise excessive api calls.
+ * - don't calculate the date for a page here -> do it on the page directly
  */
 public class PagerFragment extends Fragment
 {
@@ -24,6 +33,28 @@ public class PagerFragment extends Fragment
     public ViewPager mPagerHandler;
     private myPageAdapter mPagerAdapter;
     private MainScreenFragment[] viewFragments = new MainScreenFragment[5];
+
+    private void update_scores()
+    {
+        // check for internet connection and don't start the fetch service if there is none
+        // ideally there should be a sync adapter for that
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(getActivity().CONNECTIVITY_SERVICE);
+        if (cm.getActiveNetworkInfo() == null) {
+            Toast.makeText(getActivity(), getString(R.string.noInternet), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Intent service_start = new Intent(getActivity(), myFetchService.class);
+        getActivity().startService(service_start);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        update_scores();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
@@ -32,10 +63,8 @@ public class PagerFragment extends Fragment
         mPagerAdapter = new myPageAdapter(getChildFragmentManager());
         for (int i = 0;i < NUM_PAGES;i++)
         {
-            Date fragmentdate = new Date(System.currentTimeMillis()+((i-2)*86400000));
-            SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
             viewFragments[i] = new MainScreenFragment();
-            viewFragments[i].setFragmentDate(mformat.format(fragmentdate));
+            viewFragments[i].setFragmentDateOffset(i);
         }
         mPagerHandler.setAdapter(mPagerAdapter);
         mPagerHandler.setCurrentItem(MainActivity.current_fragment);

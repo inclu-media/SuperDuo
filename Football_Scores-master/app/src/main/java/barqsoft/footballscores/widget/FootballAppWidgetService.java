@@ -65,13 +65,22 @@ public class FootballAppWidgetService extends RemoteViewsService {
         public RemoteViews getViewAt(int position) {
             RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.widget_item);
             if (mCursor.moveToPosition(position)) {
-                rv.setTextViewText(R.id.tvHomeName, mCursor.getString(scoresAdapter.COL_HOME));
-                rv.setTextViewText(R.id.tvAwayName, mCursor.getString(scoresAdapter.COL_AWAY));
-                rv.setTextViewText(R.id.tvScore, Utilies.getScores(
+                String homeName = mCursor.getString(scoresAdapter.COL_HOME);
+                String awayName = mCursor.getString(scoresAdapter.COL_AWAY);
+                String score = Utilies.getScores(
                         mCursor.getInt(scoresAdapter.COL_HOME_GOALS),
                         mCursor.getInt(scoresAdapter.COL_AWAY_GOALS)
-                ));
-                rv.setTextViewText(R.id.tvTime, mCursor.getString(scoresAdapter.COL_MATCHTIME));
+                );
+                String time = mCursor.getString(scoresAdapter.COL_MATCHTIME);
+
+                rv.setTextViewText(R.id.tvHomeName, homeName);
+                rv.setTextViewText(R.id.tvAwayName, awayName);
+                rv.setTextViewText(R.id.tvScore, score);
+                rv.setTextViewText(R.id.tvTime, time);
+
+                // set content description for talk back
+                rv.setContentDescription(rv.getLayoutId(),
+                        Utilies.getContentDescription(mContext, homeName, awayName, score, time));
             }
             return rv;
         }

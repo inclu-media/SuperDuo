@@ -15,47 +15,34 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import barqsoft.footballscores.service.myFetchService;
 
 /**
  * Updated by Martin Melcher 02/08/2016:
  * - Check for internet connection before starting the fetch service
+ * - Added text view for empty lists
+ * - Calculate date dor loader here and not in PagerFragment
  */
 public class MainScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
     public scoresAdapter mAdapter;
     public static final int SCORES_LOADER = 0;
-    private String[] fragmentdate = new String[1];
-    private int last_selected_item = -1;
+    private int mFragmentDateOffset;
 
     public MainScreenFragment()
     {
     }
 
-    private void update_scores()
-    {
-        // check for internet connection and don't start the fetch service if there is none
-        // ideally there should be a sync adapter for that
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(getActivity().CONNECTIVITY_SERVICE);
-        if (cm.getActiveNetworkInfo() == null) {
-            Toast.makeText(getActivity(),getString(R.string.noInternet), Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        Intent service_start = new Intent(getActivity(), myFetchService.class);
-        getActivity().startService(service_start);
-    }
-
-    public void setFragmentDate(String date)
-    {
-        fragmentdate[0] = date;
+    public void setFragmentDateOffset(int offset) {
+        mFragmentDateOffset = offset;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
-
-        update_scores();
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         final ListView score_list = (ListView) rootView.findViewById(R.id.scores_list);
@@ -80,11 +67,21 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         return rootView;
     }
 
+    private String[] getFragmentDate() {
+        Date fragmentdate = new Date(System.currentTimeMillis()+((mFragmentDateOffset-2)*86400000));
+        SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
+
+        String[] sDate = new String[1];
+        sDate[0] = mformat.format(fragmentdate);
+
+        return sDate;
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
     {
         return new CursorLoader(getActivity(),DatabaseContract.scores_table.buildScoreWithDate(),
-                null,null,fragmentdate,null);
+                null,null,getFragmentDate(),null);
     }
 
     @Override

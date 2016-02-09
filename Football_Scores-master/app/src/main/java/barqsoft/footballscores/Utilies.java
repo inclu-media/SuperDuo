@@ -63,4 +63,10 @@ public class Utilies
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
     }
+
+    public static String getContentDescription(Context context, String homeName,
+                                               String awayName, String score, String time) {
+        return homeName + " " + context.getString(R.string.versus) + " " +
+                awayName +". "+ score + ". " + context.getString(R.string.startsAt) + " " + time;
+    }
 }

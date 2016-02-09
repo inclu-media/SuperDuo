@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import com.squareup.picasso.Picasso;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import barqsoft.footballscores.DatabaseContract;
 import barqsoft.footballscores.R;
@@ -44,6 +48,7 @@ import retrofit2.http.Path;
  */
 public class myFetchService extends IntentService
 {
+    private static Pattern urlPattern = Pattern.compile("/(\\w{2}/)(\\w{1}/\\w{2}/)(.*$)");
     public static final String LOG_TAG = "myFetchService";
     public myFetchService()
     {
@@ -255,8 +260,18 @@ public class myFetchService extends IntentService
                     // extract team url and get crest from that
                     Home_url = crestUrl(match_data.getJSONObject(LINKS).getJSONObject(HOME_TEAM_LINK)
                             .getString("href"));
+                    if (Home_url.endsWith(".svg")) {
+                        Home_url = getPngFor(Home_url);
+                    }
                     Away_url = crestUrl(match_data.getJSONObject(LINKS).getJSONObject(AWAY_TEAM_LINK)
                             .getString("href"));
+                    if (Away_url.endsWith(".svg")) {
+                        Away_url = getPngFor(Away_url);
+                    }
+
+                    // pre-load images
+                    Picasso.with(mContext).load(Home_url).fetch();
+                    Picasso.with(mContext).load(Away_url).fetch();
 
                     mDate = match_data.getString(MATCH_DATE);
                     mTime = mDate.substring(mDate.indexOf("T") + 1, mDate.indexOf("Z"));
@@ -318,6 +333,23 @@ public class myFetchService extends IntentService
             Log.e(LOG_TAG,e.getMessage());
         }
 
+    }
+
+    private String getPngFor(String svgUrl) {
+        int dimen = Math.round(Utilies.dipToPixels(mContext, 48));
+        Matcher matcher = urlPattern.matcher(svgUrl);
+        if (matcher.find()) {
+            String lang = matcher.group(1);
+            String path = matcher.group(2);
+            String fileName = matcher.group(3);
+            return  mContext.getString(R.string.wikimedia_thumb_url) +
+                    lang + "thumb/" +
+                    path + fileName +
+                    "/" + dimen + "px-" + fileName + ".png";
+        }
+        else {
+            return "";
+        }
     }
 }
 

@@ -27,12 +27,12 @@ import java.util.regex.Pattern;
  * - Made sharing hashtag a string resource
  * - Fixed League display (old league codes were used)
  * - Use wikimedia thumbnail generator for crests
+ * - Added content description to list item -> talk back reads the score
  */
 public class scoresAdapter extends CursorAdapter
 {
     private static final String LOG_TAG = scoresAdapter.class.getSimpleName();
     private Context mContext;
-    private static Pattern urlPatter = Pattern.compile("/(\\w{2}/)(\\w{1}/\\w{2}/)(.*$)");
 
     public static final int COL_DATE = 1;
     public static final int COL_MATCHTIME = 2;
@@ -48,54 +48,28 @@ public class scoresAdapter extends CursorAdapter
 
     public double detail_match_id = 0;
 
-    public static class ViewHolder
+    static class ViewHolder
     {
-        public TextView home_name;
-        public TextView away_name;
-        public TextView score;
-        public TextView date;
-        public ImageView home_crest;
-        public ImageView away_crest;
-        public double match_id;
-
-        public ViewHolder(View view)
-        {
-            home_name = (TextView) view.findViewById(R.id.home_name);
-            away_name = (TextView) view.findViewById(R.id.away_name);
-            score     = (TextView) view.findViewById(R.id.score_textview);
-            date      = (TextView) view.findViewById(R.id.data_textview);
-            home_crest = (ImageView) view.findViewById(R.id.home_crest);
-            away_crest = (ImageView) view.findViewById(R.id.away_crest);
-        }
+        TextView home_name;
+        TextView away_name;
+        TextView score;
+        TextView date;
+        ImageView home_crest;
+        ImageView away_crest;
+        double match_id;
+        View the_view;
     }
 
     private void loadCrest(String crestUrl, ImageView view) {
 
         if (crestUrl.isEmpty()) {
             view.setImageResource(R.drawable.crest_48);
-            return;
         }
-
-        int dimen = Math.round(Utilies.dipToPixels(mContext, 48));
-
-        if (crestUrl.endsWith(".svg")) {
-            Matcher matcher = urlPatter.matcher(crestUrl);
-            if (matcher.find()) {
-                String lang = matcher.group(1);
-                String path = matcher.group(2);
-                String fileName = matcher.group(3);
-                crestUrl =  mContext.getString(R.string.wikimedia_thumb_url) +
-                        lang + "thumb/" +
-                        path + fileName +
-                        "/" + dimen + "px-" + fileName + ".png";
-            }
-            else {
-                view.setImageResource(R.drawable.crest_48);
-                return;
-            }
+        else {
+            int dimen = Math.round(Utilies.dipToPixels(mContext, 48));
+            Picasso.with(mContext).load(crestUrl).resize(dimen, dimen).centerInside()
+                    .placeholder(R.drawable.crest_48).error(R.drawable.crest_48).into(view);
         }
-        Picasso.with(mContext).load(crestUrl).resize(dimen, dimen).centerInside()
-                .placeholder(R.drawable.crest_48).error(R.drawable.crest_48).into(view);
     }
 
     public scoresAdapter(Context context,Cursor cursor,int flags)
@@ -109,7 +83,7 @@ public class scoresAdapter extends CursorAdapter
     public View newView(Context context, Cursor cursor, ViewGroup parent)
     {
         View item = LayoutInflater.from(context).inflate(R.layout.scores_list_item, parent, false);
-        ViewHolder holder = new ViewHolder(item);
+        ViewHolder holder = new ViewHolder();
         item.setTag(holder);
         return item;
     }
@@ -118,14 +92,27 @@ public class scoresAdapter extends CursorAdapter
     public void bindView(View view, final Context context, Cursor cursor)
     {
         ViewHolder holder = (ViewHolder) view.getTag();
+        holder.home_name = (TextView) view.findViewById(R.id.home_name);
+        holder.away_name = (TextView) view.findViewById(R.id.away_name);
+        holder.score     = (TextView) view.findViewById(R.id.score_textview);
+        holder.date      = (TextView) view.findViewById(R.id.data_textview);
+        holder.home_crest = (ImageView) view.findViewById(R.id.home_crest);
+        holder.away_crest = (ImageView) view.findViewById(R.id.away_crest);
+        holder.the_view = view;
+
         final String homeName = cursor.getString(COL_HOME);
         final String score = Utilies.getScores(cursor.getInt(COL_HOME_GOALS),
                 cursor.getInt(COL_AWAY_GOALS));
         final String awayName = cursor.getString(COL_AWAY);
+        final String time = cursor.getString(COL_MATCHTIME);
+
+        // set content description
+        String conDesc = Utilies.getContentDescription(context, homeName, awayName, score, time);
+        holder.the_view.setContentDescription(conDesc);
 
         holder.home_name.setText(homeName);
         holder.away_name.setText(awayName);
-        holder.date.setText(cursor.getString(COL_MATCHTIME));
+        holder.date.setText(time);
         holder.score.setText(score);
         holder.match_id = cursor.getDouble(COL_ID);
 
