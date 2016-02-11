@@ -235,6 +235,7 @@ public class myFetchService extends IntentService
         try {
             JSONArray matches = new JSONObject(JSONdata).getJSONArray(FIXTURES);
 
+            Log.d(LOG_TAG, "No of Matches in JSON: " + matches.length());
 
             //ContentValues to be inserted
             Vector<ContentValues> values = new Vector <ContentValues> (matches.length());
@@ -270,8 +271,12 @@ public class myFetchService extends IntentService
                     }
 
                     // pre-load images
-                    Picasso.with(mContext).load(Home_url).fetch();
-                    Picasso.with(mContext).load(Away_url).fetch();
+                    if (!Home_url.isEmpty()) {
+                        Picasso.with(mContext).load(Home_url).fetch();
+                    }
+                    if (!Away_url.isEmpty()) {
+                        Picasso.with(mContext).load(Away_url).fetch();
+                    }
 
                     mDate = match_data.getString(MATCH_DATE);
                     mTime = mDate.substring(mDate.indexOf("T") + 1, mDate.indexOf("Z"));
@@ -303,8 +308,8 @@ public class myFetchService extends IntentService
                     Home_goals = match_data.getJSONObject(RESULT).getString(HOME_GOALS);
                     Away_goals = match_data.getJSONObject(RESULT).getString(AWAY_GOALS);
                     match_day = match_data.getString(MATCH_DAY);
-                    ContentValues match_values = new ContentValues();
 
+                    ContentValues match_values = new ContentValues();
                     match_values.put(DatabaseContract.scores_table.MATCH_ID,match_id);
                     match_values.put(DatabaseContract.scores_table.DATE_COL,mDate);
                     match_values.put(DatabaseContract.scores_table.TIME_COL,mTime);
@@ -316,21 +321,21 @@ public class myFetchService extends IntentService
                     match_values.put(DatabaseContract.scores_table.AWAY_GOALS_COL,Away_goals);
                     match_values.put(DatabaseContract.scores_table.LEAGUE_COL,League);
                     match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
-
                     values.add(match_values);
                 }
             }
+
             int inserted_data = 0;
             ContentValues[] insert_data = new ContentValues[values.size()];
             values.toArray(insert_data);
             inserted_data = context.getContentResolver().bulkInsert(
                     DatabaseContract.BASE_CONTENT_URI,insert_data);
 
-            //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
+            // Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
         }
         catch (JSONException e)
         {
-            Log.e(LOG_TAG,e.getMessage());
+            Log.e(LOG_TAG,"JSON Parsing Problem: " + e.getMessage());
         }
 
     }

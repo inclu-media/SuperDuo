@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/tvHomeName"
         android:text="Home Team Name"
-        android:gravity="center_vertical|left"
+        android:gravity="center_vertical|start"
         android:textSize="16sp"
         android:layout_weight="2"
         android:singleLine="false"
@@ -50,7 +50,7 @@
         android:id="@+id/tvAwayName"
         android:singleLine="false"
         android:text="Away Team Name"
-        android:gravity="center_vertical|right"
+        android:gravity="center_vertical|end"
         android:textSize="16sp"
         android:layout_weight="2"
         android:ellipsize="end" />
