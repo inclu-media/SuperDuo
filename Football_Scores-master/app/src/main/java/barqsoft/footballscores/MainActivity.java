@@ -7,10 +7,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import barqsoft.footballscores.widget.FootballAppWidgetProvider;
+
 public class MainActivity extends ActionBarActivity
 {
     public static int selected_match_id;
     public static int current_fragment = 2;
+    public static int scroll_pos = 0;
     public static String LOG_TAG = "MainActivity";
     private final String save_tag = "Save Test";
     private PagerFragment my_main;
@@ -20,6 +23,14 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(LOG_TAG, "Reached MainActivity onCreate");
+
+        // read scroll position from intent if activity was started from widget
+        Intent intent = getIntent();
+        if (intent != null) {
+            scroll_pos = intent.getIntExtra(FootballAppWidgetProvider.MATCH_INDEX, 0);
+            Log.d(LOG_TAG, "Get scroll position from intent: " + scroll_pos);
+        }
+
         if (savedInstanceState == null) {
             my_main = new PagerFragment();
             getSupportFragmentManager().beginTransaction()
@@ -34,6 +45,15 @@ public class MainActivity extends ActionBarActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        Log.d(LOG_TAG, "Activity started form Widget. Match Index: " +
+                intent.getStringExtra(FootballAppWidgetProvider.MATCH_INDEX));
+
+        super.onNewIntent(intent);
     }
 
     @Override

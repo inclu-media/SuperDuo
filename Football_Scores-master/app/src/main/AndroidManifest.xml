@@ -26,9 +26,10 @@
 
         <provider
             android:name=".ScoresProvider"
-            android:authorities="barqsoft.footballscores" />
+            android:authorities="barqsoft.footballscores"
+            android:exported="true"/>
 
-        <receiver android:name=".widget.FootballAppWidgetProvider" >
+        <receiver android:name=".widget.FootballAppWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

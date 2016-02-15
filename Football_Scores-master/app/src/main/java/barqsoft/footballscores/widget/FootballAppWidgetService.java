@@ -5,12 +5,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import org.joda.time.LocalDate;
 
 import barqsoft.footballscores.DatabaseContract;
+import barqsoft.footballscores.MainActivity;
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.Utilies;
 import barqsoft.footballscores.scoresAdapter;
@@ -39,16 +41,17 @@ public class FootballAppWidgetService extends RemoteViewsService {
 
         @Override
         public void onCreate() {
-            LocalDate ld = new LocalDate();
-            String[] date = new String[1];
-            date[0] =ld.toString("yyyy-MM-dd");
-            mCursor = getContentResolver().query(DatabaseContract.scores_table.buildScoreWithDate(),
-                    null,null,date,null);
+            this.onDataSetChanged();
         }
 
         @Override
         public void onDataSetChanged() {
-            // do nothing
+            LocalDate ld = new LocalDate();
+            String[] date = new String[1];
+            date[0] =ld.toString("yyyy-MM-dd");
+
+            mCursor = getContentResolver().query(DatabaseContract.scores_table.buildScoreWithDate(),
+                    null,null,date,null);
         }
 
         @Override
@@ -81,6 +84,13 @@ public class FootballAppWidgetService extends RemoteViewsService {
                 // set content description for talk back
                 rv.setContentDescription(rv.getLayoutId(),
                         Utilies.getContentDescription(mContext, homeName, awayName, score, time));
+
+                // set up the fill intent
+                Bundle extras = new Bundle();
+                extras.putInt(FootballAppWidgetProvider.MATCH_INDEX, position);
+                Intent fillInIntent = new Intent();
+                fillInIntent.putExtras(extras);
+                rv.setOnClickFillInIntent(R.id.llMatch, fillInIntent);
             }
             return rv;
         }

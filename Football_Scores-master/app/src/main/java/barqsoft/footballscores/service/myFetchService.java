@@ -1,10 +1,14 @@
 package barqsoft.footballscores.service;
 
 import android.app.IntentService;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.squareup.picasso.Picasso;
@@ -29,6 +33,7 @@ import java.util.regex.Pattern;
 import barqsoft.footballscores.DatabaseContract;
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.Utilies;
+import barqsoft.footballscores.widget.FootballAppWidgetProvider;
 import retrofit2.Call;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Response;
@@ -44,6 +49,7 @@ import retrofit2.http.Path;
  * - API endpoints and constants put into resource file (api.xml)
  * - API version switched to v1
  * - Home and Away Team URLs read from API and stored into DB
+ * - Team crests are fetched from wikimedia and cached in shared prefs (urls)
  * - API parameter for the next 2 days changed from n2 to n3 as n2 would be only be today and tmrw.
  */
 public class myFetchService extends IntentService
@@ -71,7 +77,8 @@ public class myFetchService extends IntentService
      * @param teamUrl String
      * @return String
      */
-    private String crestUrl(String teamUrl) {
+    private String crestUrl(String teamUrl, String teamName, SharedPreferences prefs) {
+
         String teamEndp = getString(R.string.team_link);
         String teamId = teamUrl.replace(teamEndp,"");
 
@@ -86,7 +93,12 @@ public class myFetchService extends IntentService
             Response res = teamCall.execute();
             if (res.isSuccess()) {
                 Team t = (Team)res.body();
-                return t.crestUrl;
+                String cUrl =  t.crestUrl;
+
+                // cache for next time
+                prefs.edit().putString(teamName, cUrl).apply();
+
+                return cUrl;
             } else {
                 return "";
             }
@@ -104,8 +116,6 @@ public class myFetchService extends IntentService
 
         getData(mContext.getString(R.string.timeframe_next_two));
         getData(mContext.getString(R.string.timeframe_past_two));
-
-        return;
     }
 
     private void getData (String timeFrame)
@@ -219,23 +229,12 @@ public class myFetchService extends IntentService
         final String MATCH_DAY = "matchday";
 
         //Match data
-        String League = null;
-        String mDate = null;
-        String mTime = null;
-        String Home = null;
-        String Home_url = null;
-        String Away = null;
-        String Away_url = null;
-        String Home_goals = null;
-        String Away_goals = null;
-        String match_id = null;
-        String match_day = null;
+        String League, mDate, mTime, Home, Home_url, Away, Away_url, Home_goals, Away_goals,
+                match_id, match_day;
 
 
         try {
             JSONArray matches = new JSONObject(JSONdata).getJSONArray(FIXTURES);
-
-            Log.d(LOG_TAG, "No of Matches in JSON: " + matches.length());
 
             //ContentValues to be inserted
             Vector<ContentValues> values = new Vector <ContentValues> (matches.length());
@@ -256,26 +255,6 @@ public class myFetchService extends IntentService
                     if(!isReal){
                         //This if statement changes the match ID of the dummy data so that it all goes into the database
                         match_id=match_id+Integer.toString(i);
-                    }
-
-                    // extract team url and get crest from that
-                    Home_url = crestUrl(match_data.getJSONObject(LINKS).getJSONObject(HOME_TEAM_LINK)
-                            .getString("href"));
-                    if (Home_url.endsWith(".svg")) {
-                        Home_url = getPngFor(Home_url);
-                    }
-                    Away_url = crestUrl(match_data.getJSONObject(LINKS).getJSONObject(AWAY_TEAM_LINK)
-                            .getString("href"));
-                    if (Away_url.endsWith(".svg")) {
-                        Away_url = getPngFor(Away_url);
-                    }
-
-                    // pre-load images
-                    if (!Home_url.isEmpty()) {
-                        Picasso.with(mContext).load(Home_url).fetch();
-                    }
-                    if (!Away_url.isEmpty()) {
-                        Picasso.with(mContext).load(Away_url).fetch();
                     }
 
                     mDate = match_data.getString(MATCH_DATE);
@@ -309,6 +288,39 @@ public class myFetchService extends IntentService
                     Away_goals = match_data.getJSONObject(RESULT).getString(AWAY_GOALS);
                     match_day = match_data.getString(MATCH_DAY);
 
+                    // extract team url and get crest from that
+                    // used shared prefs for caching ... not ideal. in future version use db
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+                    if (prefs.contains(Home)) {
+                        Home_url = prefs.getString(Home,"");
+                    }
+                    else {
+                        Home_url = crestUrl(match_data.getJSONObject(LINKS).getJSONObject(HOME_TEAM_LINK)
+                                .getString("href"), Home, prefs);
+                    }
+
+                    if (Home_url.endsWith(".svg")) {
+                        Home_url = getPngFor(Home_url);
+                    }
+                    if (prefs.contains(Away)) {
+                        Away_url = prefs.getString(Away, "");
+                    }
+                    else {
+                        Away_url = crestUrl(match_data.getJSONObject(LINKS).getJSONObject(AWAY_TEAM_LINK)
+                                .getString("href"), Away, prefs);
+                    }
+                    if (Away_url.endsWith(".svg")) {
+                        Away_url = getPngFor(Away_url);
+                    }
+
+                    // pre-load images
+                    if (!Home_url.isEmpty()) {
+                        Picasso.with(mContext).load(Home_url).fetch();
+                    }
+                    if (!Away_url.isEmpty()) {
+                        Picasso.with(mContext).load(Away_url).fetch();
+                    }
+
                     ContentValues match_values = new ContentValues();
                     match_values.put(DatabaseContract.scores_table.MATCH_ID,match_id);
                     match_values.put(DatabaseContract.scores_table.DATE_COL,mDate);
@@ -332,6 +344,12 @@ public class myFetchService extends IntentService
                     DatabaseContract.BASE_CONTENT_URI,insert_data);
 
             // Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
+
+            // notify widget that data has changed
+            AppWidgetManager awm = AppWidgetManager.getInstance(mContext);
+            int[] awIds = awm.getAppWidgetIds(new ComponentName(mContext,
+                    FootballAppWidgetProvider.class));
+            awm.notifyAppWidgetViewDataChanged(awIds, R.id.lvMatches);
         }
         catch (JSONException e)
         {

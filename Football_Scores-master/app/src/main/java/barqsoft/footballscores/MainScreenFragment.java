@@ -1,8 +1,6 @@
 package barqsoft.footballscores;
 
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -13,24 +11,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import barqsoft.footballscores.service.myFetchService;
 
 /**
  * Updated by Martin Melcher 02/08/2016:
  * - Check for internet connection before starting the fetch service
  * - Added text view for empty lists
- * - Calculate date dor loader here and not in PagerFragment
+ * - Calculate date for loader here and not in PagerFragment
  */
 public class MainScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
+    private final static String LOG_TAG = MainScreenFragment.class.getSimpleName();
     public scoresAdapter mAdapter;
     public static final int SCORES_LOADER = 0;
     private int mFragmentDateOffset;
+    private ListView mScorelist;
 
     public MainScreenFragment()
     {
@@ -45,19 +42,17 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
                              final Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        final ListView score_list = (ListView) rootView.findViewById(R.id.scores_list);
+        mScorelist = (ListView) rootView.findViewById(R.id.scores_list);
         mAdapter = new scoresAdapter(getActivity(),null,0);
 
-        score_list.setAdapter(mAdapter);
-        score_list.setEmptyView(rootView.findViewById(R.id.tvNoMatches));
+        mScorelist.setAdapter(mAdapter);
+        mScorelist.setEmptyView(rootView.findViewById(R.id.tvNoMatches));
 
         getLoaderManager().initLoader(SCORES_LOADER,null,this);
         mAdapter.detail_match_id = MainActivity.selected_match_id;
-        score_list.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
+        mScorelist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 scoresAdapter.ViewHolder selected = (scoresAdapter.ViewHolder) view.getTag();
                 mAdapter.detail_match_id = selected.match_id;
                 MainActivity.selected_match_id = (int) selected.match_id;
@@ -67,7 +62,21 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+
+        // if the activity was started from the widget
+        // we might need to scroll to the desired match
+        if (MainActivity.scroll_pos > 0) {
+            mScorelist.setSelection(MainActivity.scroll_pos);
+            MainActivity.scroll_pos = 0;
+        }
+
+        super.onResume();
+    }
+
     private String[] getFragmentDate() {
+
         Date fragmentdate = new Date(System.currentTimeMillis()+((mFragmentDateOffset-2)*86400000));
         SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
 
