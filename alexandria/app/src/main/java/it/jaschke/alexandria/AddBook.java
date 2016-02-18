@@ -25,10 +25,10 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.squareup.picasso.Picasso;
 
 import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
-import it.jaschke.alexandria.services.DownloadImage;
 
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -202,7 +202,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            new DownloadImage((ImageView) rootView.findViewById(R.id.bookCover)).execute(imgUrl);
+            Picasso.with(getActivity()).load(imgUrl).into((ImageView) rootView.findViewById(R.id.bookCover));
             rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
         }
 
