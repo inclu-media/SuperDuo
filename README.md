@@ -14,6 +14,7 @@
 * Repaced v4 with  support lib v7 ActionBarDrawerToggle.
 * Replaced custom back navigation on BookDetails with proper toolbar home/back navigation.
 * Added dummy picture for books without a cover.
+* Summary for setting added.
 
 ### Other Fixes
 
@@ -72,10 +73,7 @@ from wikimedia.
  * Check for internet connection before starting the fetch service
  * Added text view for empty lists
  * Calculate date for loader here and not in PagerFragment 
-
-#### PagerFragment
-
-* update_scores was moved here from the MainScreenFragment. The number of unnecessary API calls is highly reduced by that.
+ * Swipe to refresh (+ refresh menu item) implemented.
 
 #### scoresAdapter
 

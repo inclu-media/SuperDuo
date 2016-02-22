@@ -27,6 +27,7 @@ public class MainActivity extends ActionBarActivity
         // read scroll position from intent if activity was started from widget
         Intent intent = getIntent();
         if (intent != null) {
+            current_fragment = 2; // today
             scroll_pos = intent.getIntExtra(FootballAppWidgetProvider.MATCH_INDEX, 0);
             Log.d(LOG_TAG, "Get scroll position from intent: " + scroll_pos);
         }

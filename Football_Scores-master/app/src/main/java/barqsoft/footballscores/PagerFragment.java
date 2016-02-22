@@ -23,8 +23,6 @@ import barqsoft.footballscores.service.myFetchService;
 /**
  * Created by yehya khaled on 2/27/2015.
  * Updated by Martin Melcher on 09/02/2016:
- * - moved update_scores here from MainScreenFragment and call it in onResume
- * otherwise excessive api calls.
  * - don't calculate the date for a page here -> do it on the page directly
  */
 public class PagerFragment extends Fragment
@@ -33,27 +31,6 @@ public class PagerFragment extends Fragment
     public ViewPager mPagerHandler;
     private myPageAdapter mPagerAdapter;
     private MainScreenFragment[] viewFragments = new MainScreenFragment[5];
-
-    private void update_scores()
-    {
-        // check for internet connection and don't start the fetch service if there is none
-        // ideally there should be a sync adapter for that
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(getActivity().CONNECTIVITY_SERVICE);
-        if (cm.getActiveNetworkInfo() == null) {
-            Toast.makeText(getActivity(), getString(R.string.noInternet), Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        Intent service_start = new Intent(getActivity(), myFetchService.class);
-        getActivity().startService(service_start);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        update_scores();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
