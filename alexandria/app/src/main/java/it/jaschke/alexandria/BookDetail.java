@@ -1,19 +1,14 @@
 package it.jaschke.alexandria;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,12 +22,10 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import it.jaschke.alexandria.data.AlexandriaContract;
-import it.jaschke.alexandria.services.BookService;
 
 
 public class BookDetail extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String LOG_TAG = BookDetail.class.getSimpleName();
     public static final String EAN_KEY = "EAN";
     private final int LOADER_ID = 10;
     private View rootView;
@@ -143,7 +136,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         /** BUG FIX end */
 
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + bookTitle);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text) + " " + bookTitle);
 
         /** Bug FIX: check for null otherwise crash at rotation */
         if (shareActionProvider != null) {
@@ -171,10 +164,14 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         /** BIG FIX: end */
 
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+        ImageView iv = (ImageView) rootView.findViewById(R.id.fullBookCover);
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            Picasso.with(getActivity()).load(imgUrl).into((ImageView) rootView.findViewById(R.id.fullBookCover));
-            rootView.findViewById(R.id.fullBookCover).setVisibility(View.VISIBLE);
+            Picasso.with(getActivity()).load(imgUrl).error(R.drawable.ic_local_library_24dp).into(iv);
         }
+        else {
+            iv.setImageResource(R.drawable.ic_local_library_24dp);
+        }
+        iv.setVisibility(View.VISIBLE);
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
         ((TextView) rootView.findViewById(R.id.categories)).setText(categories);

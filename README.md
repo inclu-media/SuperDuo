@@ -13,6 +13,7 @@
 * Changed Button styles (back to default) as the buttons were not recognisable as such.
 * Repaced v4 with  support lib v7 ActionBarDrawerToggle.
 * Replaced custom back navigation on BookDetails with proper toolbar home/back navigation.
+* Added dummy picture for books without a cover.
 
 ### Other Fixes
 

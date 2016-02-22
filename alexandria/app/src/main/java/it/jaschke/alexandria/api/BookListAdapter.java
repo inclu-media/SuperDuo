@@ -17,6 +17,7 @@ import it.jaschke.alexandria.data.AlexandriaContract;
 
 /**
  * Created by saj on 11/01/15.
+ * Updated by Martin Melcher 22/02/2015
  */
 public class BookListAdapter extends CursorAdapter {
 
@@ -43,7 +44,12 @@ public class BookListAdapter extends CursorAdapter {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         String imgUrl = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        Picasso.with(context).load(imgUrl).into(viewHolder.bookCover);
+        if (imgUrl.isEmpty()) {
+            viewHolder.bookCover.setImageResource(R.drawable.ic_local_library_24dp);
+        }
+        else {
+            Picasso.with(context).load(imgUrl).error(R.drawable.ic_local_library_24dp).into(viewHolder.bookCover);
+        }
 
         String bookTitle = cursor.getString(cursor.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
         viewHolder.bookTitle.setText(bookTitle);

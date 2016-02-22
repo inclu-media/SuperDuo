@@ -33,19 +33,10 @@ import it.jaschke.alexandria.services.BookService;
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = AddBook.class.getSimpleName();
-    private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private final int LOADER_ID = 1;
     private View rootView;
     private final String EAN_CONTENT="eanContent";
-    private static final String SCAN_FORMAT = "scanFormat";
-    private static final String SCAN_CONTENTS = "scanContents";
-
     private EditText mEan;
-
-    private String mScanFormat = "Format:";
-    private String mScanContents = "Contents:";
-
-
 
     public AddBook(){
     }
@@ -109,19 +100,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // This is the callback method that the system will invoke when your button is
-                // clicked. You might do this by launching another app or by including the
-                //functionality directly in this app.
-                // Hint: Use a Try/Catch block to handle the Intent dispatch gracefully, if you
-                // are using an external app.
-                //when you're done, remove the toast below.
-                /*Context context = getActivity();
-                CharSequence text = "This button should let you scan a book for its barcode!";
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();*/
-
                 IntentIntegrator.forSupportFragment(AddBook.this).initiateScan();
             }
         });
@@ -201,10 +179,14 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         /** BUG FIX end */
 
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+        ImageView iv = (ImageView) rootView.findViewById(R.id.bookCover);
         if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            Picasso.with(getActivity()).load(imgUrl).into((ImageView) rootView.findViewById(R.id.bookCover));
-            rootView.findViewById(R.id.bookCover).setVisibility(View.VISIBLE);
+            Picasso.with(getActivity()).load(imgUrl).error(R.drawable.ic_local_library_24dp).into(iv);
         }
+        else {
+            iv.setImageResource(R.drawable.ic_local_library_24dp);
+        }
+        iv.setVisibility(View.VISIBLE);
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
         ((TextView) rootView.findViewById(R.id.categories)).setText(categories);

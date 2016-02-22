@@ -28,6 +28,7 @@ import it.jaschke.alexandria.data.AlexandriaContract;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  * <p/>
+ * Updated by Martin Melcher 22/02/2015
  */
 public class BookService extends IntentService {
 
