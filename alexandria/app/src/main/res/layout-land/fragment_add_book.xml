@@ -105,7 +105,7 @@
                 android:layout_height="fill_parent"
                 android:contentDescription="@string/cancel_button"
                 android:layout_weight="1"
-                android:src="@drawable/ic_action_discard"
+                android:src="@drawable/ic_cancel_24dp"
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/delete_button"
                 android:visibility="invisible"
@@ -119,7 +119,7 @@
                 android:layout_weight="1"
                 android:id="@+id/save_button"
                 android:visibility="invisible"
-                android:src="@drawable/ic_action_accept"
+                android:src="@drawable/ic_check_circle_24dp"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_gravity="bottom"
                 />
