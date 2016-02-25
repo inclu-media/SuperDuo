@@ -5,5 +5,6 @@
     <string name="league398" translatable="false">Premier League</string>
     <string name="league399" translatable="false">Primera Division</string>
     <string name="league401" translatable="false">Seria A</string>
+    <string name="league405" translatable="false">Champions League</string>
     <string name="unknown_league" translatable="true">Unknown League</string>
 </resources>
