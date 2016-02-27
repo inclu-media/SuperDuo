@@ -5,4 +5,5 @@
     <string name="conDescPagerStrip" translatable="true">Select Fixture Day</string>
     <string name="versus" translatable="true">versus</string>
     <string name="startsAt" translatable="true">starts at</string>
+    <string name="share" translate="true">Share this match</string>
 </resources>
